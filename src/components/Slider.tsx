@@ -22,7 +22,7 @@ export default function Slider({ children, gap, resetKey, focusX = 0 }: Props) {
   const go = (to: number, animated = true) => ref.current?.scrollTo({ x: Math.max(0, Math.min(to, max)), animated });
 
   // New day picked: start near its first free slot
-  useEffect(() => { go(focusX, false); }, [resetKey, max]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { go(focusX, false); }, [resetKey, max, focusX]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Web: drag with the mouse to slide. A drag doesn't count as a click on a slot.
   useEffect(() => {

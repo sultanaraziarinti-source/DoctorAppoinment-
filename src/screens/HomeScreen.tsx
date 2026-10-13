@@ -43,19 +43,21 @@ export default function HomeScreen({ route, navigation }: NativeStackScreenProps
   useClinic(); // re-render when the doctor updates info or closes a day
   const [chosen, setDay] = useState<Date | null>(null);
   // If the chosen day was closed by the doctor, fall back to the first open day
-  const day = chosen && slotsFor(chosen).length > 0 ? chosen : days.find(d => slotsFor(d).length > 0) ?? days[0];
+  const { bookedSerials } = useStore();
+  const now = new Date();
+  const hasFree = (d: Date) => slotsFor(d).some(sl => sl.start > now && !bookedSerials(d).has(sl.index + 1));
+  // Default: the first day that still has a free slot (today's may all have passed)
+  const day = chosen && slotsFor(chosen).length > 0 ? chosen : days.find(hasFree) ?? days.find(d => slotsFor(d).length > 0) ?? days[0];
   const [picked, setSerial] = useState<number | null>(null);
   const [showBio, setShowBio] = useState(false);
-  // x position of each slot in the website slider, so it can open at the first free one
-  const slotX = useRef<Record<number, number>>({});
-  const { bookedSerials } = useStore();
+  // Website slider opens at the first free slot: its x position, measured once it's drawn
+  const [focusX, setFocusX] = useState(0);
   const booked = bookedSerials(day);
-  const now = new Date();
   const slots = slotsFor(day);
   const firstFree = slots.findIndex(sl => sl.start > now && !booked.has(sl.index + 1));
   // Drop the choice once that slot gets booked (e.g. after coming back from a booking)
   const serial = picked && !booked.has(picked) ? picked : null;
-  const pickDay = (d: Date) => { setDay(d); setSerial(null); };
+  const pickDay = (d: Date) => { setDay(d); setSerial(null); setFocusX(0); };
   const fee = CONSULTATIONS.find(c => c.id === "chamber")!.fee;
   const month = n(day.toLocaleDateString(lang === "bn" ? "bn-BD" : "en-GB", { month: "long", year: "numeric" }));
 
@@ -121,16 +123,20 @@ export default function HomeScreen({ route, navigation }: NativeStackScreenProps
   const slotButtons = slots.map(sl => {
     const no = sl.index + 1;
     const taken = booked.has(no);
-    const off = taken || sl.start <= now;
+    const past = sl.start <= now;
+    const off = taken || past;
     const on = no === serial;
     return (
       <Pressable key={no} disabled={off} onPress={() => setSerial(no)}
-        onLayout={e => { slotX.current[no] = e.nativeEvent.layout.x; }}
+        onLayout={sl.index === firstFree ? e => setFocusX(Math.max(0, e.nativeEvent.layout.x - 24)) : undefined}
         style={[s.slot, on && s.slotOn, off && s.slotOff]} accessibilityState={{ selected: on, disabled: off }}>
         <Text style={[s.slotText, on && { color: "#fff" }, off && s.slotTextOff]}>
           {timeLabel(sl.start, lang)} - {timeLabel(sl.end, lang)}
         </Text>
-        {taken && <Text style={s.slotTag}>{t.booked}</Text>}
+        {/* Booked (red), Passed (grey) or Available (green) */}
+        <Text style={[s.slotTag, taken ? s.tagBooked : past ? s.tagPast : s.tagFree, on && { color: "#fff" }]}>
+          {taken ? t.booked : past ? t.past : t.freeSlot}
+        </Text>
       </Pressable>
     );
   });
@@ -158,7 +164,7 @@ export default function HomeScreen({ route, navigation }: NativeStackScreenProps
       <View style={s.divider} />
 
       {wide
-        ? <Slider gap={12} resetKey={dateKey(day)} focusX={firstFree > 0 ? Math.max(0, (slotX.current[firstFree + 1] ?? 0) - 24) : 0}>{slotButtons}</Slider>
+        ? <Slider gap={12} resetKey={dateKey(day)} focusX={firstFree > 0 ? focusX : 0}>{slotButtons}</Slider>
         : <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingVertical: 2 }}>{slotButtons}</ScrollView>}
     </>
   );
@@ -251,6 +257,9 @@ const sPhone = StyleSheet.create({
   slotText: { fontSize: 14, fontWeight: "600", color: C.blueDk, textAlign: "center", textAlignVertical: "center", includeFontPadding: false },
   slotTextOff: { color: "#94A3B8", textDecorationLine: "line-through" },
   slotTag: { fontSize: 10, color: C.red, fontWeight: "700", textAlign: "center", includeFontPadding: false },
+  tagFree: { color: C.greenDk },
+  tagBooked: { color: C.red },
+  tagPast: { color: "#94A3B8" },
   footer: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8, backgroundColor: "#fff" },
   cta: { backgroundColor: C.green, borderRadius: 8, paddingVertical: 12, alignItems: "center" },
   ctaWide: { paddingVertical: 18 },
