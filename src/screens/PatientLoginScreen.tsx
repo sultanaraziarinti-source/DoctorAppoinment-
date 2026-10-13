@@ -28,6 +28,14 @@ export default function PatientLoginScreen({ onDoctor }: { onDoctor: () => void 
     login({ name: name.trim(), phone: p });
   };
 
+  // Website: under the headline. Phone: below the login card, so the form comes first.
+  const callNow = (
+    <Pressable onPress={() => Linking.openURL(`tel:${CONTACT.phones[0]}`)} accessibilityRole="link"
+      style={({ pressed }) => [s.call, !wide && s.callPhone, pressed && { opacity: 0.85 }]}>
+      <Text style={s.callText}>📞 {t.callNow}  ·  {n(CONTACT.phones[0])}</Text>
+    </Pressable>
+  );
+
   return (
     <ImageBackground source={require("../../assets/web-hero.jpg")} style={s.bg} resizeMode="cover">
       <View style={s.tint}>
@@ -50,10 +58,7 @@ export default function PatientLoginScreen({ onDoctor }: { onDoctor: () => void 
                 <Text style={[s.eyebrow, wide && { fontSize: 26 }]}>{t.loginEyebrow}</Text>
                 <Text style={[s.headline, wide && s.headlineWide]}>{t.loginHeadline}</Text>
                 <Text style={[s.sub, wide && { fontSize: 21 }]}>{t.loginSub}</Text>
-                <Pressable onPress={() => Linking.openURL(`tel:${CONTACT.phones[0]}`)} accessibilityRole="link"
-                  style={({ pressed }) => [s.call, pressed && { opacity: 0.85 }]}>
-                  <Text style={s.callText}>📞 {t.callNow}  ·  {n(CONTACT.phones[0])}</Text>
-                </Pressable>
+                {wide && callNow}
               </View>
 
               {/* Right: frosted login card */}
@@ -72,6 +77,8 @@ export default function PatientLoginScreen({ onDoctor }: { onDoctor: () => void 
                   <Text style={s.doctorLink}>👨‍⚕️ {t.doctorLoginLink}</Text>
                 </Pressable>
               </View>
+
+              {!wide && callNow}
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
@@ -102,6 +109,7 @@ const s = StyleSheet.create({
   headlineWide: { fontSize: 72, lineHeight: 84 },
   sub: { color: "#fff", fontSize: 16 },
   call: { alignSelf: "flex-start", backgroundColor: C.green, borderWidth: 1, borderColor: "#fff", paddingHorizontal: 22, paddingVertical: 12, marginTop: 22 },
+  callPhone: { alignSelf: "stretch", alignItems: "center", marginTop: 0 },
   callText: { color: "#fff", fontSize: 17, fontWeight: "700" },
   card: { borderWidth: 2, borderColor: "#fff", borderRadius: 6, padding: 22, backgroundColor: "rgba(255,255,255,0.18)", ...glass },
   cardWide: { width: 440, padding: 28 },
