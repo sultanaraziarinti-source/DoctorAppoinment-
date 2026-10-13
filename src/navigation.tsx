@@ -57,19 +57,12 @@ export default function Navigation() {
   return (
     <NavigationContainer documentTitle={{ formatter: () => "DoctorBondhu" }}>
       <Tabs.Navigator screenOptions={() => ({
-        // Desktop: the tabs move into the header as menu links
-        header: ({ navigation }) => {
-          const { routes, index } = navigation.getState();
-          // The doctor area isn't a menu item on the website (it's in the footer)
-          return <Header links={routes.filter(r => r.name !== "User" && r.name !== "Admin").map(r => ({
-            key: r.key,
-            label: (({ HomeTab: t.home, History: t.history, Reports: t.reports, Medicine: t.medicine }) as Record<string, string>)[r.name],
-            active: routes[index].key === r.key,
-            onPress: () => navigation.navigate(r.name),
-          }))} onBook={() => navigation.navigate("HomeTab", { screen: "Home", params: { book: Date.now() } })}
-            onHome={() => navigation.navigate("HomeTab", { screen: "Home" })} />;
-        },
-        // Website: tabs move to the header. Phone: a bit taller so the Bangla labels aren't cut off
+        // Website header: logo + Make Appointment (History, Reports, Medicine are linked from the footer)
+        header: ({ navigation }) => (
+          <Header onBook={() => navigation.navigate("HomeTab", { screen: "Home", params: { book: Date.now() } })}
+            onHome={() => navigation.navigate("HomeTab", { screen: "Home" })} />
+        ),
+        // Website: no tab bar (footer links instead). Phone: a bit taller so the Bangla labels aren't cut off
         tabBarStyle: wide ? { display: "none" } : { minHeight: 62, paddingTop: 6, paddingBottom: 6 },
         // Every page stays full width with a solid background, so it fully covers the page under it
         sceneStyle: { backgroundColor: C.bg },

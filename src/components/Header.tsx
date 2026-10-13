@@ -5,11 +5,9 @@ import { CONTACT, DOCTOR, hoursText, scheduleGroups, timeLabel } from "../doctor
 import { useWide } from "../useWide";
 import { C } from "../theme";
 
-export interface NavLink { key: string; label: string; active: boolean; onPress: () => void; }
-
 // Logo + language switch (বাংলা / English), shown on every tab.
-// On a desktop browser it becomes a website header: blue info strip, then logo / menu / booking button.
-export default function Header({ links = [], onBook, onHome }: { links?: NavLink[]; onBook?: () => void; onHome?: () => void }) {
+// On a desktop browser it becomes a website header: blue info strip, then logo and booking button.
+export default function Header({ onBook, onHome }: { onBook?: () => void; onHome?: () => void }) {
   const { t, lang, setLang, n } = useI18n();
   const insets = useSafeAreaInsets();
   const wide = useWide();
@@ -68,13 +66,6 @@ export default function Header({ links = [], onBook, onHome }: { links?: NavLink
             <Text style={s.taglineWide}>{t.appTagline}</Text>
           </View>
         </Pressable>
-        <View style={s.menu}>
-          {links.map(l => (
-            <Pressable key={l.key} onPress={l.onPress} accessibilityRole="link" style={s.menuItem}>
-              <Text style={[s.menuText, l.active && s.menuTextOn]}>{l.label}</Text>
-            </Pressable>
-          ))}
-        </View>
         <Pressable onPress={onBook} accessibilityRole="button" style={({ pressed }) => [s.cta, pressed && { opacity: 0.85 }]}>
           <Text style={s.ctaText}>{t.makeAppointment}  📅</Text>
         </Pressable>
@@ -102,10 +93,6 @@ const s = StyleSheet.create({
   logoWide: { width: 84, height: 66 },
   titleWide: { fontSize: 34, fontWeight: "900" },
   taglineWide: { fontSize: 17, color: C.muted, fontWeight: "600" },
-  menu: { flexDirection: "row", gap: 8 },
-  menuItem: { paddingHorizontal: 18, paddingVertical: 8 },
-  menuText: { fontSize: 20, color: C.blue, fontWeight: "500" },
-  menuTextOn: { color: C.green, fontWeight: "700" },
   cta: { backgroundColor: C.blue, borderRadius: 40, paddingHorizontal: 28, paddingVertical: 16 },
   ctaText: { color: "#fff", fontSize: 20, fontWeight: "800" },
 });
