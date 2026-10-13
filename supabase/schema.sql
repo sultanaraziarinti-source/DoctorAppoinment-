@@ -3,6 +3,11 @@
 --
 -- Rule of thumb: anyone can READ the public clinic info; only the doctor (an email listed in
 -- the admins table below) can CHANGE it or see patients' bookings and prescriptions.
+--
+-- Not stored here: the patient login (name + phone) and each patient's test reports live only
+-- on the patient's own phone/browser. Patients have no Supabase account.
+--
+-- Last updated to match the app: 2026-10-13
 
 -- ─── Tables ────────────────────────────────────────────────────────────────
 
@@ -45,6 +50,10 @@ create table if not exists prescriptions (
   updated_at timestamptz not null default now()
 );
 create index if not exists prescriptions_appointment_idx on prescriptions (appointment_id);
+
+-- Fast lookups for the doctor's patient list (by day) and finding a patient (by phone)
+create index if not exists appointments_date_idx  on appointments (date, serial);
+create index if not exists appointments_phone_idx on appointments (phone);
 
 -- Patients' phones that want the "doctor closed" notification
 create table if not exists push_tokens (
