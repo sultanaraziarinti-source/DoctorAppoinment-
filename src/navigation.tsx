@@ -69,12 +69,13 @@ export default function Navigation() {
           }))} onBook={() => navigation.navigate("HomeTab", { screen: "Home", params: { book: Date.now() } })}
             onHome={() => navigation.navigate("HomeTab", { screen: "Home" })} />;
         },
-        tabBarStyle: wide ? { display: "none" } : undefined,
+        // Website: tabs move to the header. Phone: a bit taller so the Bangla labels aren't cut off
+        tabBarStyle: wide ? { display: "none" } : { minHeight: 62, paddingTop: 6, paddingBottom: 6 },
         // Every page stays full width with a solid background, so it fully covers the page under it
         sceneStyle: { backgroundColor: C.bg },
         tabBarActiveTintColor: C.blue,
         tabBarInactiveTintColor: C.muted,
-        tabBarLabelStyle: { fontSize: 11, fontWeight: "700" },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: "700", lineHeight: 15 },
       })}>
         <Tabs.Screen name="HomeTab" component={HomeStack} options={{ title: t.home, tabBarIcon: icon("🏠") }} />
         <Tabs.Screen name="History" component={HistoryScreen} options={{ title: t.history, tabBarIcon: icon("📋") }} />
