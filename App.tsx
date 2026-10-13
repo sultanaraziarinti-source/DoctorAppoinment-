@@ -7,6 +7,7 @@ import { I18nProvider } from "./src/i18n";
 import { StoreProvider } from "./src/store";
 import { ensurePermission, registerForClosedAlerts } from "./src/notifications";
 import { ClinicProvider } from "./src/clinic";
+import { PatientProvider } from "./src/patient";
 import Navigation from "./src/navigation";
 import { useWide } from "./src/useWide";
 import { C } from "./src/theme";
@@ -20,6 +21,7 @@ export default function App() {
     <SafeAreaProvider>
       <I18nProvider>
         <ClinicProvider>
+        <PatientProvider>
         <StoreProvider>
           {/* Web: phone-width frame on narrow windows, full website layout on desktop */}
           <View style={s.page}>
@@ -31,6 +33,7 @@ export default function App() {
           {/* Android: hide the system button/gesture bar so the app fills the screen (swipe up to show it) */}
           {Platform.OS === "android" && <NavigationBar hidden />}
         </StoreProvider>
+        </PatientProvider>
         </ClinicProvider>
       </I18nProvider>
     </SafeAreaProvider>

@@ -4,6 +4,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useI18n } from "../i18n";
 import { slotsFor, timeLabel } from "../doctor";
 import { useStore } from "../store";
+import { usePatient } from "../patient";
 import { notifyBooking } from "../notifications";
 import { C } from "../theme";
 import { Button, Field, Page, ui } from "./admin/ui";
@@ -18,9 +19,10 @@ export default function BookScreen({ route, navigation }: NativeStackScreenProps
   const { addAppointment, bookedSerials, reports } = useStore();
   const day = parseDay(route.params.date);
   const slot = slotsFor(day)[route.params.serial - 1];
-  const [name, setName] = useState("");
+  const { patient } = usePatient();
+  const [name, setName] = useState(patient?.name ?? "");
   const [age, setAge] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(patient?.phone ?? "");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 

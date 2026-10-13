@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useI18n } from "../i18n";
 import { CONTACT, DOCTOR, hoursText, scheduleGroups, timeLabel } from "../doctor";
 import { useWide } from "../useWide";
+import { usePatient } from "../patient";
 import { C } from "../theme";
 
 // Logo + language switch (বাংলা / English), shown on every tab.
@@ -18,10 +19,18 @@ export default function Header({ onBook, onHome }: { onBook?: () => void; onHome
     else onHome?.();
   };
 
+  const { patient, logout } = usePatient();
   const langButton = (
-    <Pressable onPress={() => setLang(lang === "bn" ? "en" : "bn")} style={wide ? s.langWide : s.lang} accessibilityRole="button">
-      <Text style={wide ? s.langTextWide : s.langText}>🌐 {t.language}</Text>
-    </Pressable>
+    <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
+      <Pressable onPress={() => setLang(lang === "bn" ? "en" : "bn")} style={wide ? s.langWide : s.lang} accessibilityRole="button">
+        <Text style={wide ? s.langTextWide : s.langText}>🌐 {t.language}</Text>
+      </Pressable>
+      {patient && (
+        <Pressable onPress={logout} style={wide ? s.langWide : s.lang} accessibilityRole="button" accessibilityLabel={t.patientLogout}>
+          <Text style={wide ? s.langTextWide : s.langText}>⎋ {wide ? t.patientLogout : ""}</Text>
+        </Pressable>
+      )}
+    </View>
   );
 
   if (!wide) {

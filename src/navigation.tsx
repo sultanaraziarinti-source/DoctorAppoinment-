@@ -1,4 +1,5 @@
-import { Text } from "react-native";
+import { useState } from "react";
+import { Pressable, Text, View } from "react-native";
 import { useWide } from "./useWide";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -17,6 +18,8 @@ import ListScreen from "./screens/ListScreen";
 import UserScreen from "./screens/UserScreen";
 import AdminStack from "./screens/admin/AdminStack";
 import { useClinic } from "./clinic";
+import { usePatient } from "./patient";
+import PatientLoginScreen from "./screens/PatientLoginScreen";
 
 export type HomeStackParams = {
   Home: { book?: number } | undefined;  // book: timestamp → jump to the date/slot picker
@@ -53,7 +56,29 @@ const icon = (e: string) => {
 export default function Navigation() {
   const { t } = useI18n();
   const wide = useWide();
-  useClinic(); // re-render when the doctor changes info or closed days
+  const { isDoctor } = useClinic(); // also re-renders when the doctor changes info or closed days
+  const { ready, patient } = usePatient();
+  const [doctorMode, setDoctorMode] = useState(false);
+
+  if (!ready) return null;
+
+  // Doctor link on the login page: the admin area on its own, with a way back
+  if (!patient && (doctorMode || isDoctor)) {
+    return (
+      <NavigationContainer documentTitle={{ formatter: () => "DoctorBondhu" }}>
+        <View style={{ flex: 1, backgroundColor: C.bg }}>
+          <Pressable onPress={() => setDoctorMode(false)} accessibilityRole="button" style={{ padding: 14, paddingTop: 40 }}>
+            <Text style={{ color: C.blue, fontWeight: "800", fontSize: 15 }}>‹ {t.patientLogin}</Text>
+          </Pressable>
+          <AdminStack />
+        </View>
+      </NavigationContainer>
+    );
+  }
+
+  // Patients see the login page first; after logging in, the app below
+  if (!patient) return <PatientLoginScreen onDoctor={() => setDoctorMode(true)} />;
+
   return (
     <NavigationContainer documentTitle={{ formatter: () => "DoctorBondhu" }}>
       <Tabs.Navigator screenOptions={() => ({

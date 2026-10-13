@@ -51,6 +51,11 @@ const STRINGS = {
     doctorName: "ডাক্তারের নাম", specialty: "বিশেষত্ব", feeTaka: "কনসালটেশন ফি (৳)", experienceYears: "অভিজ্ঞতা (বছর)",
     biography: "জীবনী", photoUrl: "ছবির লিংক", startTime: "শুরুর সময় (যেমন 17:00)", closedDay: "বন্ধ",
     inBangla: "বাংলায়", inEnglish: "ইংরেজিতে", prescribedByDoctor: "ডাক্তারের প্রেসক্রিপশন", notSignedIn: "লগইন করা নেই",
+    // patient login page
+    loginEyebrow: "মানসম্মত চিকিৎসা, ঘরে বসেই", loginHeadline: "বিশেষজ্ঞ ডাক্তারের সিরিয়াল নিন",
+    loginSub: "অভিজ্ঞ ডাক্তার, সঠিক সময়ে সঠিক চিকিৎসা।", callNow: "এখনই কল করুন",
+    loginTitle1: "লগইন ", loginTitle2: "করুন", loginNote: "আপনার নাম ও মোবাইল নম্বর দিয়ে শুরু করুন",
+    yourName: "আপনার নাম", patientLogin: "রোগী লগইন", doctorLoginLink: "ডাক্তার? এখানে লগইন করুন", patientLogout: "লগআউট",
     days: ["রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার"],
   },
   en: {
@@ -100,6 +105,11 @@ const STRINGS = {
     doctorName: "Doctor's name", specialty: "Specialty", feeTaka: "Consultation fee (৳)", experienceYears: "Experience (years)",
     biography: "Biography", photoUrl: "Photo link", startTime: "Start time (e.g. 17:00)", closedDay: "Closed",
     inBangla: "In Bangla", inEnglish: "In English", prescribedByDoctor: "Doctor's prescription", notSignedIn: "Not signed in",
+    // patient login page
+    loginEyebrow: "Bringing Quality Healthcare", loginHeadline: "Book Your Specialist Doctor",
+    loginSub: "Experienced doctor, the right care at the right time.", callNow: "Call Now",
+    loginTitle1: "Patient ", loginTitle2: "Login", loginNote: "Start with your name and mobile number",
+    yourName: "Your name", patientLogin: "Patient login", doctorLoginLink: "Doctor? Log in here", patientLogout: "Log out",
     days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
   },
 };
