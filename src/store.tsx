@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, ReactNode } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ConsultType, dateKey } from "./doctor";
 import { supabase } from "./lib/supabase";
@@ -25,6 +25,8 @@ interface Store {
   reports: Report[];
   medicines: Medicine[];
   bookedSerials: (day: Date) => Set<number>;
+  /** Re-read which slots are taken from the server (other patients book all day). */
+  refreshTaken: () => void;
   addAppointment: (a: Omit<Appointment, "id" | "createdAt">) => Promise<Appointment>;
   addReport: (r: Omit<Report, "id" | "date">) => void;
   removeReport: (id: string) => void;
@@ -52,19 +54,24 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (m) setMedicines(JSON.parse(m));
       setReady(true);
     });
-    // Slots other patients booked in the next week
+  }, []);
+
+  // Slots taken by any patient, from today on (the server is the source of truth)
+  const refreshTaken = useCallback(() => {
     supabase?.rpc("taken_slots", { from_date: dateKey(new Date()) }).then(({ data }) => { if (data) setTaken(data); });
   }, []);
+  useEffect(refreshTaken, [refreshTaken]);
 
   const persist = <T,>(key: string, setter: (v: T) => void) => (v: T) => { setter(v); AsyncStorage.setItem(key, JSON.stringify(v)); };
   const saveAppointments = persist(KEYS.appointments, setAppointments);
   const saveReports = persist(KEYS.reports, setReports);
   const saveMedicines = persist(KEYS.medicines, setMedicines);
 
-  const bookedSerials = (day: Date) => new Set([
-    ...appointments.filter(a => a.date === dateKey(day)).map(a => a.serial),
-    ...takenOnServer.filter(x => x.date === dateKey(day)).map(x => x.serial),
-  ]);
+  // With the server connected, IT decides which slots are taken (so bookings deleted there
+  // free up again everywhere). The copy saved on this device is only used in demo mode.
+  const bookedSerials = (day: Date) => new Set(supabase
+    ? takenOnServer.filter(x => x.date === dateKey(day)).map(x => x.serial)
+    : appointments.filter(a => a.date === dateKey(day)).map(a => a.serial));
 
   const addAppointment: Store["addAppointment"] = async a => {
     const appt: Appointment = { ...a, id: uid(), createdAt: new Date().toISOString() };
@@ -82,7 +89,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   return (
     <Ctx.Provider value={{
-      ready, appointments, reports, medicines, bookedSerials, addAppointment,
+      ready, appointments, reports, medicines, bookedSerials, refreshTaken, addAppointment,
       addReport: r => saveReports([{ ...r, id: uid(), date: new Date().toISOString() }, ...reports]),
       removeReport: id => saveReports(reports.filter(x => x.id !== id)),
       addMedicine: m => saveMedicines([{ ...m, id: uid() }, ...medicines]),

@@ -43,7 +43,9 @@ export default function HomeScreen({ route, navigation }: NativeStackScreenProps
   useClinic(); // re-render when the doctor updates info or closes a day
   const [chosen, setDay] = useState<Date | null>(null);
   // If the chosen day was closed by the doctor, fall back to the first open day
-  const { bookedSerials } = useStore();
+  const { bookedSerials, refreshTaken } = useStore();
+  // Fresh list of taken slots every time Home is opened
+  useFocusEffect(refreshTaken);
   const now = new Date();
   const hasFree = (d: Date) => slotsFor(d).some(sl => sl.start > now && !bookedSerials(d).has(sl.index + 1));
   // Default: the first day that still has a free slot (today's may all have passed)
