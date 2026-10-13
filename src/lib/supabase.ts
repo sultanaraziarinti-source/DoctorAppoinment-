@@ -11,7 +11,7 @@ const key = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
  */
 export const supabase: SupabaseClient | null = url && key
   ? createClient(url, key, {
-      // persistSession: false → the doctor must log in every time the admin area is opened
+      // persistSession: false → the login lasts until Log out or the browser/app is closed
       auth: { storage: AsyncStorage, autoRefreshToken: true, persistSession: false, detectSessionInUrl: false },
     })
   : null;

@@ -66,7 +66,8 @@ export default function Navigation() {
             label: (({ HomeTab: t.home, History: t.history, Reports: t.reports, Medicine: t.medicine }) as Record<string, string>)[r.name],
             active: routes[index].key === r.key,
             onPress: () => navigation.navigate(r.name),
-          }))} onBook={() => navigation.navigate("HomeTab", { screen: "Home", params: { book: Date.now() } })} />;
+          }))} onBook={() => navigation.navigate("HomeTab", { screen: "Home", params: { book: Date.now() } })}
+            onHome={() => navigation.navigate("HomeTab", { screen: "Home" })} />;
         },
         tabBarStyle: wide ? { display: "none" } : undefined,
         // Every page stays full width with a solid background, so it fully covers the page under it

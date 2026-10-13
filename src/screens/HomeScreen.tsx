@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useI18n } from "../i18n";
@@ -22,13 +23,22 @@ export default function HomeScreen({ route, navigation }: NativeStackScreenProps
   // Website: where the booking card sits, so "Make Appointment" can jump straight to it
   const bookingY = useRef(0);
   const webPageY = useRef(0);
-  const goToBooking = () => page.current?.scrollTo({ y: Math.max(webPageY.current + bookingY.current - 24, 0), animated: true });
   const bookRequest = route.params?.book;
-  useEffect(() => {
-    if (!bookRequest) return;
-    const id = setTimeout(goToBooking, 50); // let the page lay out first
+  // Every time Home comes into view: "Make Appointment" jumps to the booking card,
+  // any other way back (menu, tab, logo, back button, "Back to Home") starts at the top
+  // (Re-runs when Home comes into view, and when a new "Make Appointment" request arrives while it's open.)
+  useFocusEffect(useCallback(() => {
+    if (!bookRequest) {
+      page.current?.scrollTo({ y: 0, animated: false });
+      return;
+    }
+    const id = setTimeout(() => {
+      page.current?.scrollTo({ y: Math.max(webPageY.current + bookingY.current - 24, 0), animated: true });
+    }, 50); // let the page lay out before measuring the booking card
     return () => clearTimeout(id);
-  }, [bookRequest]);
+  }, [bookRequest]));
+  // Leaving Home: forget any "Make Appointment" request, so the next visit starts at the top
+  useFocusEffect(useCallback(() => () => navigation.setParams({ book: undefined }), [navigation]));
   const [days] = useState(() => nextDays(7));
   useClinic(); // re-render when the doctor updates info or closes a day
   const [chosen, setDay] = useState<Date | null>(null);
@@ -184,7 +194,7 @@ export default function HomeScreen({ route, navigation }: NativeStackScreenProps
           </View>
         </View>
         <Footer links={[
-          { key: "book", label: t.makeAppointment, onPress: goToBooking },
+          { key: "book", label: t.makeAppointment, onPress: () => navigation.setParams({ book: Date.now() }) },
           { key: "history", label: t.history, onPress: () => navigation.getParent()?.navigate("History") },
           { key: "reports", label: t.reports, onPress: () => navigation.getParent()?.navigate("Reports") },
           { key: "medicine", label: t.medicine, onPress: () => navigation.getParent()?.navigate("Medicine") },
@@ -196,7 +206,7 @@ export default function HomeScreen({ route, navigation }: NativeStackScreenProps
   return (
     <View style={s.screen}>
       {/* Only as tall as its content, so the button sits right under the slots; shrinks and scrolls on small screens */}
-      <ScrollView style={s.scroll} contentContainerStyle={s.page}>
+      <ScrollView ref={page} style={s.scroll} contentContainerStyle={s.page}>
         {details}
         <View style={s.divider} />
         {booking}

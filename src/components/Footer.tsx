@@ -1,5 +1,6 @@
 import { Image, Linking, Pressable, StyleSheet, Text, View } from "react-native";
 import { useI18n } from "../i18n";
+import { useClinic } from "../clinic";
 import { CONTACT, DOCTOR, hoursText, scheduleGroups, timeLabel } from "../doctor";
 import { C } from "../theme";
 
@@ -8,6 +9,7 @@ export interface FooterLink { key: string; label: string; onPress: () => void; }
 // Website footer (desktop browser): brand, working hours, more services, contact
 export default function Footer({ links, onAdmin }: { links: FooterLink[]; onAdmin: () => void }) {
   const { t, lang, n } = useI18n();
+  const { isDoctor } = useClinic();
   return (
     <View style={s.footer}>
       <View style={s.cols}>
@@ -66,7 +68,7 @@ export default function Footer({ links, onAdmin }: { links: FooterLink[]; onAdmi
       <View style={s.bottom}>
         <Text style={s.copy}>© {n(new Date().getFullYear())} DoctorBondhu · {t.appTagline}</Text>
         <Pressable onPress={onAdmin} accessibilityRole="link" style={s.admin}>
-          <Text style={s.adminText}>🔒 {t.adminLogin}</Text>
+          <Text style={s.adminText}>{isDoctor ? `👨‍⚕️ ${t.dashboard}` : `🔒 ${t.adminLogin}`}</Text>
         </Pressable>
       </View>
     </View>

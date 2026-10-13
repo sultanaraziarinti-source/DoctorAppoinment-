@@ -28,6 +28,8 @@ interface Clinic {
   doctorAppointments: Appointment[];
   /** Patient: prescriptions written for these bookings. */
   loadMyPrescriptions: (appointmentIds: string[]) => Promise<Prescription[]>;
+  /** Doctor: fetch the latest bookings and prescriptions from the server. */
+  refresh: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<string | null>;
   signOut: () => Promise<void>;
   saveInfo: (d: Partial<ClinicData>) => Promise<string | null>;
@@ -108,7 +110,7 @@ export function ClinicProvider({ children }: { children: ReactNode }) {
       return error ? error.message : null;
     }
     if (email.trim().toLowerCase() !== DEMO_LOGIN.email || password !== DEMO_LOGIN.password) return "wrong";
-    setIsDoctor(true); // in memory only — never remembered
+    setIsDoctor(true); // in memory only: lasts until Log out or the app/browser is closed
     return null;
   };
 
@@ -171,7 +173,7 @@ export function ClinicProvider({ children }: { children: ReactNode }) {
 
   return (
     <Ctx.Provider value={{
-      version, online: !!supabase, isDoctor, closedDays: CLOSED_DAYS, prescriptions, doctorAppointments, loadMyPrescriptions,
+      version, online: !!supabase, isDoctor, closedDays: CLOSED_DAYS, prescriptions, doctorAppointments, loadMyPrescriptions, refresh: loadRx,
       signIn, signOut, saveInfo, setClosed, savePrescription,
     }}>
       {children}

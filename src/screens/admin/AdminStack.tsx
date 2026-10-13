@@ -1,6 +1,5 @@
-import { useCallback } from "react";
 import { Pressable, Text } from "react-native";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useI18n } from "../../i18n";
 import { useClinic } from "../../clinic";
@@ -28,14 +27,14 @@ export type AdminStackParams = {
 const Stack = createNativeStackNavigator<AdminStackParams>();
 
 // Doctor area: login page until signed in, then the dashboard and its tools.
-// The login only lasts while the doctor stays here — leaving the area in any way signs out,
-// so the next visit always starts at the login page.
+// The login is kept in memory on this device only: the doctor can go to Home and come back
+// without logging in again, until they press Log out or close the browser/app.
+// Other people's phones and browsers always start at the login page.
 export default function AdminStack() {
   const { t } = useI18n();
-  const { isDoctor, signOut } = useClinic();
-  useFocusEffect(useCallback(() => () => { signOut(); }, [])); // eslint-disable-line react-hooks/exhaustive-deps
+  const { isDoctor } = useClinic();
   const nav = useNavigation();
-  // First screen of the area (Login / Dashboard): a back arrow that leaves to Home (and so signs out)
+  // First screen of the area (Login / Dashboard): a back arrow to Home (stays logged in)
   const leave = () => (
     <Pressable onPress={() => nav.navigate("HomeTab" as never)} hitSlop={12} accessibilityRole="button" accessibilityLabel={t.backHome}
       style={{ paddingRight: 16 }}>

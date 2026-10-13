@@ -1,4 +1,4 @@
-import { Image, Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Linking, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useI18n } from "../i18n";
 import { CONTACT, DOCTOR, hoursText, scheduleGroups, timeLabel } from "../doctor";
@@ -9,10 +9,16 @@ export interface NavLink { key: string; label: string; active: boolean; onPress:
 
 // Logo + language switch (বাংলা / English), shown on every tab.
 // On a desktop browser it becomes a website header: blue info strip, then logo / menu / booking button.
-export default function Header({ links = [], onBook }: { links?: NavLink[]; onBook?: () => void }) {
+export default function Header({ links = [], onBook, onHome }: { links?: NavLink[]; onBook?: () => void; onHome?: () => void }) {
   const { t, lang, setLang, n } = useI18n();
   const insets = useSafeAreaInsets();
   const wide = useWide();
+
+  // Logo: on the website it opens the home page in a new tab; in the app it goes to Home
+  const openLogo = () => {
+    if (Platform.OS === "web") window.open(window.location.origin, "_blank", "noopener");
+    else onHome?.();
+  };
 
   const langButton = (
     <Pressable onPress={() => setLang(lang === "bn" ? "en" : "bn")} style={wide ? s.langWide : s.lang} accessibilityRole="button">
@@ -23,13 +29,13 @@ export default function Header({ links = [], onBook }: { links?: NavLink[]; onBo
   if (!wide) {
     return (
       <View style={[s.wrap, { paddingTop: insets.top + 4 }]}>
-        <View style={s.brand} accessible accessibilityLabel="DoctorBondhu">
+        <Pressable onPress={openLogo} style={s.brand} accessibilityRole="link" accessibilityLabel="DoctorBondhu">
           <Image source={require("../../assets/logo-mark.png")} style={s.logo} resizeMode="contain" />
           <View>
             <Text style={s.title}><Text style={{ color: C.blue }}>Doctor</Text><Text style={{ color: C.green }}>Bondhu</Text></Text>
             <Text style={s.tagline}>{t.appTagline}</Text>
           </View>
-        </View>
+        </Pressable>
         {langButton}
       </View>
     );
@@ -55,13 +61,13 @@ export default function Header({ links = [], onBook }: { links?: NavLink[]; onBo
         {langButton}
       </View>
       <View style={s.bar}>
-        <View style={s.brand} accessible accessibilityLabel="DoctorBondhu">
+        <Pressable onPress={openLogo} style={s.brand} accessibilityRole="link" accessibilityLabel="DoctorBondhu">
           <Image source={require("../../assets/web-logo-mark.png")} style={s.logoWide} resizeMode="contain" />
           <View>
             <Text style={s.titleWide}><Text style={{ color: C.blue }}>Doctor</Text><Text style={{ color: C.green }}>Bondhu</Text></Text>
             <Text style={s.taglineWide}>{t.appTagline}</Text>
           </View>
-        </View>
+        </Pressable>
         <View style={s.menu}>
           {links.map(l => (
             <Pressable key={l.key} onPress={l.onPress} accessibilityRole="link" style={s.menuItem}>
