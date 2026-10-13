@@ -43,3 +43,6 @@ yarn-error.*
 # local env files (Supabase keys)
 .env
 .env*.local
+
+.vercel
+.env*
